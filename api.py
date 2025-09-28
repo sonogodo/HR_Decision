@@ -1,82 +1,90 @@
-from fastapi import FastAPI, UploadFile, File, Form
-from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
-import shutil, os, json
+# =================================================================
+#  1. CORREÇÃO DE PATH PARA A VERCEL
+#  Este trecho é essencial para que a Vercel encontre seus módulos
+#  em outras pastas, como a pasta "Matching".
+# =================================================================
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from Matching.preparingJobs import load_and_filter_jobs, transform_jobs
-from Matching.pipeline import match_jobs_candidates
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
+# =================================================================
+#  2. IMPORTS ORIGINAIS DO PROJETO
+# =================================================================
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import JSONResponse
+import json
+
+# =================================================================
+#  3. LÓGICA DE MATCHING DESABILITADA
+#  A linha abaixo foi comentada porque as bibliotecas que ela usa
+#  (spacy, scikit-learn) são muito grandes para o plano gratuito
+#  da Vercel e causam falha no build.
+# =================================================================
+# from Matching.pipeline import MatchingPipeline
+
+
+# Inicializa a aplicação FastAPI
 app = FastAPI()
 
-#@app.get("/")
-#def root():
-#    return {"API de matching ativa. Insira '/docs' ao final da URL para acessar a funcionalidade."}
-
 @app.post("/match_vaga")
-async def match_vaga_text(descricao: str = Form(...)):
-    # 1. Monta objeto de vaga temporário
-    vaga = {"id": "vaga_unica", "descricao": descricao}
+async def match_vaga(descricao: str = Form(...)):
+    """
+    Recebe a descrição de uma única vaga e deveria retornar os matches.
+    A lógica de matching real foi desabilitada para permitir o deploy.
+    """
+    try:
+        # A lógica de matching original está comentada.
+        # pipeline = MatchingPipeline()
+        # matches = pipeline.matching_process(descricao)
 
-    # 2. Carrega candidatos
-    candidates_path = "JSONs/candidates.json"
-    if not os.path.exists(candidates_path):
-        return JSONResponse({"erro": "Arquivo de candidatos não encontrado."}, status_code=400)
-    with open(candidates_path, "r", encoding="utf-8") as f:
-        candidates = json.load(f)
+        # Resposta temporária (placeholder):
+        matches = {
+            "status": "sucesso",
+            "mensagem": "A API está no ar, mas a funcionalidade de matching está temporariamente desabilitada devido a restrições do deploy.",
+            "descricao_recebida": descricao[:100] + "..." # Mostra um trecho do que foi recebido
+        }
+        return JSONResponse(content=matches)
 
-    # 3. Aplica o matching
-    res = match_jobs_candidates([vaga], candidates)
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"erro": f"Ocorreu um erro inesperado: {str(e)}"})
 
-    # 4. Monta resposta: top 3 candidatos para a vaga
-    match = res["top_matches"][0]
-    top_candidatos = [
-        {"candidato": c["cand_id"], "score": c["match_score"]}
-        for c in match["top"]
-    ]
-    return {"vaga": descricao, "top_candidatos": top_candidatos}
 
 @app.post("/match_vagas")
 async def match_vagas(file: UploadFile = File(...)):
-    # 1. Recebe o JSON e salva como vagas.json
-    vagas_path = "/tmp/vagas.json"
-    with open(vagas_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    """
+    Recebe um arquivo JSON com múltiplas vagas e deveria retornar os matches.
+    A lógica de matching real foi desabilitada para permitir o deploy.
+    """
+    try:
+        # Lê o conteúdo do arquivo JSON enviado
+        json_content = await file.read()
+        vagas_data = json.loads(json_content)
 
-    # 2. Faz as transformações corretas no JSON
-    filtered_jobs = load_and_filter_jobs()
-    if not filtered_jobs:
-        return JSONResponse({"erro": "Erro ao carregar ou filtrar vagas."}, status_code=400)
-    jobs_list = transform_jobs(filtered_jobs)
+        # A lógica de matching original está comentada.
+        # pipeline = MatchingPipeline()
+        # all_matches = {}
+        # for vaga_id, vaga_info in vagas_data.items():
+        #     descricao = vaga_info.get("descricao", "")
+        #     if descricao:
+        #         matches = pipeline.matching_process(descricao)
+        #         all_matches[vaga_id] = matches
 
-    # 3. Carrega candidatos
-    candidates_path = "JSONs/candidates.json"
-    if not os.path.exists(candidates_path):
-        return JSONResponse({"erro": "Arquivo de candidatos não encontrado."}, status_code=400)
-    with open(candidates_path, "r", encoding="utf-8") as f:
-        candidates = json.load(f)
+        # Resposta temporária (placeholder):
+        all_matches = {
+            "status": "sucesso",
+            "mensagem": "A API recebeu o arquivo, mas a funcionalidade de matching está temporariamente desabilitada.",
+            "nome_do_arquivo": file.filename,
+            "jobs_encontrados": len(vagas_data)
+        }
+        return JSONResponse(content=all_matches)
 
+    except json.JSONDecodeError:
+        return JSONResponse(status_code=400, content={"erro": "Arquivo JSON inválido."})
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"erro": f"Ocorreu um erro inesperado: {str(e)}"})
 
-    # 4. Aplica o matching
-    res = match_jobs_candidates(jobs_list, candidates)
-
-    # 5. Monta resposta: top 3 candidatos para cada vaga
-    top_matches = []
-    for match in res["top_matches"]:
-        top_matches.append({
-            "vaga": match["job_id"],
-            "top_candidatos": [
-                {"candidato": c["cand_id"], "score": c["match_score"]}
-                for c in match["top"]
-            ]
-        })
-
-    # 6. Apaga o arquivo temporário de vagas
-    if os.path.exists(vagas_path):
-        os.remove(vagas_path)
-
-    return {"top_matches": top_matches}
-
-app_handler = app  # Para garantir compatibilidade com Vercel
+# Endpoint raiz opcional para confirmar que a API está funcionando
+@app.get("/")
+async def root():
+    return {"mensagem": "Bem-vindo à API da Decision HR. O frontend deve ser servido neste mesmo endereço."}
