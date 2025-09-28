@@ -1,11 +1,16 @@
 {
+  "functions": {
+    "index.py": {
+      "runtime": "python3.9"
+    }
+  },
   "routes": [
     {
       "src": "/match_vaga",
       "dest": "index.py"
     },
     {
-      "src": "/match_vagas",
+      "src": "/match_vagas", 
       "dest": "index.py"
     },
     {

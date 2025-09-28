@@ -89,3 +89,12 @@ async def match_vagas(file: UploadFile = File(...)):
 @app.get("/")
 async def root():
     return {"mensagem": "Bem-vindo à API da Decision HR."}
+
+# Handler para Vercel - usando Mangum para compatibilidade ASGI
+try:
+    from mangum import Mangum
+    handler = Mangum(app)
+except ImportError:
+    # Fallback se mangum não estiver disponível
+    def handler(request):
+        return app
