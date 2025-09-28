@@ -1,11 +1,13 @@
 {
+  "builds": [
+    {
+      "src": "/api.py",
+      "use": "@vercel/python"
+    }
+  ],
   "routes": [
     {
-      "src": "/match_vaga",
-      "dest": "/api.py"
-    },
-    {
-      "src": "/match_vagas",
+      "src": "/api/(.*)",
       "dest": "/api.py"
     },
     {
