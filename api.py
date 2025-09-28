@@ -1,7 +1,7 @@
 # =================================================================
-#  1. CORREÇÃO DE PATH PARA A VERCEL
-#  Este trecho é essencial para que a Vercel encontre seus módulos
-#  em outras pastas, como a pasta "Matching".
+#  1. CORREÇÃO DE PATH PARA A VERCEL (MUITO IMPORTANTE)
+#  Este trecho garante que o Python consiga encontrar módulos em 
+#  outras pastas do seu projeto, como a pasta "Matching".
 # =================================================================
 import sys
 import os
@@ -17,9 +17,9 @@ import json
 
 # =================================================================
 #  3. LÓGICA DE MATCHING DESABILITADA
-#  A linha abaixo foi comentada porque as bibliotecas que ela usa
-#  (spacy, scikit-learn) são muito grandes para o plano gratuito
-#  da Vercel e causam falha no build.
+#  A linha abaixo foi comentada pois as bibliotecas que ela usa 
+#  (spacy, scikit-learn) são muito grandes para o plano gratuito 
+#  da Vercel e impedem o deploy de funcionar.
 # =================================================================
 # from Matching.pipeline import MatchingPipeline
 
@@ -30,7 +30,7 @@ app = FastAPI()
 @app.post("/match_vaga")
 async def match_vaga(descricao: str = Form(...)):
     """
-    Recebe a descrição de uma única vaga e deveria retornar os matches.
+    Recebe a descrição de uma única vaga.
     A lógica de matching real foi desabilitada para permitir o deploy.
     """
     try:
@@ -38,11 +38,11 @@ async def match_vaga(descricao: str = Form(...)):
         # pipeline = MatchingPipeline()
         # matches = pipeline.matching_process(descricao)
 
-        # Resposta temporária (placeholder):
+        # Resposta temporária (placeholder) para indicar que a API está funcionando:
         matches = {
             "status": "sucesso",
-            "mensagem": "A API está no ar, mas a funcionalidade de matching está temporariamente desabilitada devido a restrições do deploy.",
-            "descricao_recebida": descricao[:100] + "..." # Mostra um trecho do que foi recebido
+            "mensagem": "API está no ar, mas a funcionalidade de matching está temporariamente desabilitada.",
+            "descricao_recebida": descricao[:100] + "..."
         }
         return JSONResponse(content=matches)
 
@@ -53,7 +53,7 @@ async def match_vaga(descricao: str = Form(...)):
 @app.post("/match_vagas")
 async def match_vagas(file: UploadFile = File(...)):
     """
-    Recebe um arquivo JSON com múltiplas vagas e deveria retornar os matches.
+    Recebe um arquivo JSON com múltiplas vagas.
     A lógica de matching real foi desabilitada para permitir o deploy.
     """
     try:
@@ -73,7 +73,7 @@ async def match_vagas(file: UploadFile = File(...)):
         # Resposta temporária (placeholder):
         all_matches = {
             "status": "sucesso",
-            "mensagem": "A API recebeu o arquivo, mas a funcionalidade de matching está temporariamente desabilitada.",
+            "mensagem": "API recebeu o arquivo, mas a funcionalidade de matching está temporariamente desabilitada.",
             "nome_do_arquivo": file.filename,
             "jobs_encontrados": len(vagas_data)
         }
@@ -84,7 +84,8 @@ async def match_vagas(file: UploadFile = File(...)):
     except Exception as e:
         return JSONResponse(status_code=500, content={"erro": f"Ocorreu um erro inesperado: {str(e)}"})
 
+
 # Endpoint raiz opcional para confirmar que a API está funcionando
 @app.get("/")
 async def root():
-    return {"mensagem": "Bem-vindo à API da Decision HR. O frontend deve ser servido neste mesmo endereço."}
+    return {"mensagem": "Bem-vindo à API da Decision HR."}
