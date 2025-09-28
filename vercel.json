@@ -1,5 +1,16 @@
 {
   "routes": [
-    { "src": "/", "dest": "index.html" }
+    {
+      "src": "/match_vaga",
+      "dest": "index.py"
+    },
+    {
+      "src": "/match_vagas",
+      "dest": "index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "src/index.html"
+    }
   ]
 }

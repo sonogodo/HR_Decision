@@ -366,10 +366,10 @@
                     const formData = new FormData();
                     formData.append('descricao', descricao);
 
-                    // ===================================
-                    //  ATUALIZAÇÃO DA URL DA API
-                    // ===================================
-                    const res = await fetch('/api/match_vaga', {
+                    // ==================================================
+                    //  CORREÇÃO DA URL: Removido o prefixo /api/
+                    // ==================================================
+                    const res = await fetch('/match_vaga', {
                         method: 'POST',
                         body: formData
                     });
@@ -404,10 +404,10 @@
                     const formData = new FormData();
                     formData.append('file', vagasFileInput.files[0]);
                     
-                    // ===================================
-                    //  ATUALIZAÇÃO DA URL DA API
-                    // ===================================
-                    const res = await fetch('/api/match_vagas', {
+                    // ==================================================
+                    //  CORREÇÃO DA URL: Removido o prefixo /api/
+                    // ==================================================
+                    const res = await fetch('/match_vagas', {
                         method: 'POST',
                         body: formData
                     });
